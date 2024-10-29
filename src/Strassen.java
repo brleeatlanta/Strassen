@@ -115,7 +115,7 @@ public class Strassen
                 if (line.startsWith("#")) {
                     // read the matrix size
                     line = br.readLine();
-                    int size = Integer.parseInt(line.trim());
+                    int size = Integer.parseInt(line.substring(1));
                     matrix = new int[size][size];
 
                     //read the matrix values
