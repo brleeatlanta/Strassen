@@ -1,5 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Strassen
@@ -121,39 +124,81 @@ public class Strassen
                     }
                 }
             }
+            fileReader.close();
             return matrix;
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        return new int[0][];
+    }
+
+    public static void writeResultToFile(int[][] result) {
+        try {
+            FileWriter myWriter = new FileWriter("result.txt");
+            for (int i = 0; i < result.length; i++) {
+                myWriter.write(Arrays.deepToString(result));
+            }
+            myWriter.close();
+            System.out.println("\nSuccessfully wrote result to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
     }
 
+    public static int menu() {
+        Scanner scan = new Scanner(System.in);
+        while (true) {
+            System.out.print("Which matrices would you like to calculate?\n" +
+                    "0) 16 x 16\n" +
+                    "1) 1k x 1k\n" +
+                    "2) 2k x 2k\n" +
+                    "3) 4k x 4k\n" +
+                    "4) 8k x 8k\n" +
+                    "5) 16k x 16k\n" +
+                    "Choice: ");
+            int choice = scan.nextInt();
+            if (choice >= 0 && choice <= 5) {
+                return choice;
+            } else {
+                System.out.println("Invalid input. Please try again.");
+            }
+        }
+    }
 
     /** Main function **/
     public static void main (String[] args)
     {
-        Scanner scan = new Scanner(System.in);
         System.out.println("Strassen Multiplication Algorithm Test\n");
         /** Make an object of Strassen class **/
         Strassen s = new Strassen();
 
+        //initializing N for later
         int N = 0;
-        /** Accept two 2d matrices **/
+        int[][] A = null, B = null, result = null;
 
-        int[][] A = readMatricesFromFile("matrix1.txt", 4);
-        int[][] B = readMatricesFromFile("matrix2.txt", 4);
-
-        /*
-        int[][] A =     { { 1, 1, 1, 1 },
-                { 2, 2, 2, 2 },
-                { 3, 3, 3, 3 },
-                { 2, 2, 2, 2 } };
-
-        int[][] B =     { { 1, 1, 1, 1 },
-                { 2, 2, 2, 2 },
-                { 3, 3, 3, 3 },
-                { 2, 2, 2, 2 } };
-
-         */
+        switch (menu()) {
+            case 0: A = readMatricesFromFile("matrix1.txt", 8);
+                B = readMatricesFromFile("matrix2.txt", 8);
+                result = new int[8][8];
+                break;
+            case 1: //will be 1k x 1k
+                //to be added
+                break;
+            case 2: //will be 2k x 2k
+                //to be added
+                break;
+            case 3: //will be 4k x 4k
+                //to be added
+                break;
+            case 4: //will be 8k x 8k
+                //to be added
+                break;
+            case 5: //will be 16k x 16k
+                //to be added
+                break;
+        }
 
         //checking array sizes
         int Ar = A.length;
@@ -183,6 +228,7 @@ public class Strassen
         }
 
         int[][] C = s.multiply(A, B);
+        result = C;
 
         System.out.println("\nProduct of matrices A and  B : ");
         for (int i = 0; i < N; i++)
@@ -191,6 +237,8 @@ public class Strassen
                 System.out.print(C[i][j] +" ");
             System.out.println();
         }
+
+        writeResultToFile(result);
 
     }
 }
