@@ -109,28 +109,37 @@ public class Strassen
                 P[i2][j2] = C[i1][j1];
     }
 
-    public static int[][] readMatricesFromFile(String fileName, int size) {
+    public static String readMatricesFromFile(String fileName) {
         try {
-            int[][] matrix = new int[size][size];
+            String result = "";
             File file = new File(fileName);
             Scanner fileReader = new Scanner(file);
-            int i;
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
-                i = 0;
-                for (int j = 0; j < size; j++) {
-                    for (int k = 0; k < size; k++) {
-                        matrix[j][k] = Integer.parseInt(String.valueOf(line.charAt(i++)));
-                    }
-                }
+                result = result.concat(line);
             }
-            fileReader.close();
-            return matrix;
+            return result;
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        return new int[0][];
+        return "";
+    }
+
+    public static int[][] splitMatrices(String combined, int size, boolean firstHalf) {
+        int[][] matrix = new int[size][size];
+        String line;
+
+        if (firstHalf) {line = combined.substring(0, combined.length()/2);}
+        else {line = combined.substring(combined.length()/2);}
+
+        int i = 0;
+        for (int j = 0; j < size; j++) {
+            for (int k = 0; k < size; k++) {
+                matrix[j][k] = Integer.parseInt(String.valueOf(line.charAt(i++)));
+            }
+        }
+        return matrix;
     }
 
     public static void writeResultToFile(int[][] result) {
@@ -151,7 +160,7 @@ public class Strassen
         Scanner scan = new Scanner(System.in);
         while (true) {
             System.out.print("Which matrices would you like to calculate?\n" +
-                    "0) 16 x 16\n" +
+                    "0) test\n" +
                     "1) 1k x 1k\n" +
                     "2) 2k x 2k\n" +
                     "3) 4k x 4k\n" +
@@ -177,10 +186,12 @@ public class Strassen
         //initializing N for later
         int N = 0;
         int[][] A = null, B = null, result = null;
+        String test;
 
         switch (menu()) {
-            case 0: A = readMatricesFromFile("matrix1.txt", 8);
-                B = readMatricesFromFile("matrix2.txt", 8);
+            case 0: test = readMatricesFromFile("testmatrix.txt");
+                A = splitMatrices(test,8,true);
+                B = splitMatrices(test,8,false);
                 result = new int[8][8];
                 break;
             case 1: //will be 1k x 1k
@@ -237,6 +248,11 @@ public class Strassen
                 System.out.print(C[i][j] +" ");
             System.out.println();
         }
+
+        writeResultToFile(result);
+
+    }
+}
 
         writeResultToFile(result);
 
