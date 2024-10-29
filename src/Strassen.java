@@ -1,9 +1,10 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
-/** Class Strassen **/
 public class Strassen
 {
-    /** Function to multiply matrices **/
     public int[][] multiply(int[][] A, int[][] B)
     {
         int n = A.length;
@@ -98,13 +99,42 @@ public class Strassen
             for(int j1 = 0, j2 = jB; j1 < C.length; j1++, j2++)
                 C[i1][j1] = P[i2][j2];
     }
-    /** Function to join child matrices intp parent matrix **/
+    /** Function to join child matrices into parent matrix **/
     public void join(int[][] C, int[][] P, int iB, int jB)
     {
         for(int i1 = 0, i2 = iB; i1 < C.length; i1++, i2++)
             for(int j1 = 0, j2 = jB; j1 < C.length; j1++, j2++)
                 P[i2][j2] = C[i1][j1];
     }
+
+    public static int[][] readMatricesFromFile(String fileName){
+        try (BufferedReader br = new BufferedReader((new FileReader(fileName)))) {
+            String line;
+            int[][] matrix = new int[0][];
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("#")) {
+                    // read the matrix size
+                    line = br.readLine();
+                    int size = Integer.parseInt(line.trim());
+                    matrix = new int[size][size];
+
+                    //read the matrix values
+                    for (int i = 0; i < size; i++) {
+                        line = br.readLine();
+                        String[] values = line.trim().split("");
+                        for (int j = 0; j < size; j++) {
+                            matrix[i][j] = Integer.parseInt(values[j]);
+                        }
+                    }
+                }
+            }
+            return matrix;
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return new int[0][];
+    }
+
     /** Main function **/
     public static void main (String[] args)
     {
@@ -113,19 +143,33 @@ public class Strassen
         /** Make an object of Strassen class **/
         Strassen s = new Strassen();
 
-
-        int N = 4;
+        int N = 0;
         /** Accept two 2d matrices **/
 
+        int[][] A = readMatricesFromFile("testmatrix.txt");
+
+        /*
         int[][] A =     { { 1, 1, 1, 1 },
                 { 2, 2, 2, 2 },
                 { 3, 3, 3, 3 },
                 { 2, 2, 2, 2 } };
+         */
 
         int[][] B =     { { 1, 1, 1, 1 },
                 { 2, 2, 2, 2 },
                 { 3, 3, 3, 3 },
                 { 2, 2, 2, 2 } };
+
+        //checking array sizes
+        int Ar = A.length;
+        int Ac = A[0].length;
+        int Br = B.length;
+        int Bc = B[0].length;
+
+        if (Ar == Ac && Ar == Br && Ar == Bc) {
+            N = Ar;
+        }
+
         System.out.println("\nArray A =>");
 
         for (int i = 0; i < N; i++)
