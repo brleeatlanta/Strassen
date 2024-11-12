@@ -6,6 +6,7 @@ public class Strassen
     public static class Node extends Thread {
         Node left, right, parent;
         int[][] data;
+        //how many children a parent node has, used to keep balance in creation
         int weight;
 
         public Node(Node parent) {
@@ -18,8 +19,12 @@ public class Strassen
         public void run() {}
     }
 
+    /** Function to create a balanced, unordered binary tree without data
+     * @param n number of cores in binary tree
+     * @return root node of created binary tree
+     */
     public static Node createBiTree(int n) {
-        n += 1;
+        //converting from number of cores to number of nodes to be added to tree (one less than size because root/base is created outside loop)
         n *= 2;
         Node base = new Node(null);
         for (int i = 0; i < n; i++) {
@@ -28,20 +33,35 @@ public class Strassen
         return base;
     }
 
+    /** Recursive function to add nodes to a binary tree and keep balance
+     * @param start node from which to look at the left and right children
+     */
     public static void insertNode(Node start) {
+        //if start does not have a node to it's left, create one and add increment weight accordingly
         if (start.left == null) {
             start.left = new Node(start);
             start.weight++;
-        } else if (start.right == null) {
+            while (start.parent != null) {
+                start.parent.weight++;
+                start = start.parent;
+            }
+        } //if start does not have a node to it's right, create one and add increment weight accordingly
+        else if (start.right == null) {
             start.right = new Node(start);
             start.weight++;
-        } else if (start.left.weight >= start.right.weight) {
+            while (start.parent != null) {
+                start.parent.weight++;
+                start = start.parent;
+            }
+        } //if left side of tree is lighter or equal to right side of tree, recurse using left as new start
+        else if (start.left.weight <= start.right.weight) {
             insertNode(start.left);
-        } else {
+        } //else recurse using right half of tree
+        else {
             insertNode(start.right);
         }
     }
-    
+
     /** Function to multiply two matrices
      * @param A first matrix to be multiplied
      * @param B second matrix to be multiplied
@@ -227,7 +247,6 @@ public class Strassen
         }
     }
 
-    /** Main function **/
     public static void main (String[] args)
     {
         Scanner scan = new Scanner(System.in);
@@ -235,7 +254,7 @@ public class Strassen
         // Make an object of Strassen class
         Strassen s = new Strassen();
 
-        //initializing N for later
+        //initializing variables for later
         int N = 0, choice = 0;
         int[][] A = null, B = null, result = null;
         String test;
@@ -243,48 +262,6 @@ public class Strassen
         boolean cont = true;
         Node root = null;
 
-        while (cont) {
-            System.out.print("Which matrices would you like to calculate?\n" +
-                    "0) test\n" +
-                    "1) 1k x 1k\n" +
-                    "2) 2k x 2k\n" +
-                    "3) 4k x 4k\n" +
-                    "4) 8k x 8k\n" +
-                    "5) 16k x 16k\n" +
-                    "Choice: ");
-            choice = scan.nextInt();
-            if (choice >= 0 && choice <= 5) {
-                cont = false;
-            } else {
-                System.out.println("Invalid input. Please try again.");
-            }
-        }
-
-        switch (choice) {
-            case 0: test = readMatricesFromFile("testmatrix.txt");
-                A = splitMatrices(test,8,true);
-                B = splitMatrices(test,8,false);
-                result = new int[8][8];
-                break;
-            case 1: //will be 1k x 1k
-                //to be added
-                break;
-            case 2: //will be 2k x 2k
-                //to be added
-                break;
-            case 3: //will be 4k x 4k
-                //to be added
-                break;
-            case 4: //will be 8k x 8k
-                //to be added
-                break;
-            case 5: //will be 16k x 16k
-                //to be added
-                break;
-        } //2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768
-        //  1 2 3  4  5  6   7   8   9   10   11   12   13    14    15
-
-        cont = true;
         while (cont) {
             System.out.print("How many cores/threads should be used?\n" +
                     "0) 1 core/threads\n" +
@@ -308,6 +285,47 @@ public class Strassen
             case 3 -> {root = createBiTree(15);}
             case 4 -> {root = createBiTree(31);}
         }
+
+        cont = true;
+        while (cont) {
+            System.out.print("Which matrices would you like to calculate?\n" +
+                    "0) test\n" +
+                    "1) 16 x 16\n" +
+                    "2) 32 x 32\n" +
+                    "3) 64 x 64\n" +
+                    "4) 128 x 128\n" +
+                    "5) 256 x 256\n" +
+                    "Choice: ");
+            choice = scan.nextInt();
+            if (choice >= 0 && choice <= 5) {
+                cont = false;
+            } else {
+                System.out.println("Invalid input. Please try again.");
+            }
+        }
+
+        switch (choice) {
+            case 0: test = readMatricesFromFile("testmatrix.txt");
+                A = splitMatrices(test,8,true);
+                B = splitMatrices(test,8,false);
+                result = new int[8][8];
+                break;
+            case 1: //will be 16 x 16
+                //to be added
+                break;
+            case 2: //will be 32 x 32
+                //to be added
+                break;
+            case 3: //will be 64 x 64
+                //to be added
+                break;
+            case 4: //will be 128 x 128
+                //to be added
+                break;
+            case 5: //will be 256 x 256
+                //to be added
+                break;
+        } //16 32 64 128 256
 
         //checking array sizes
         int Ar = A.length;
