@@ -193,19 +193,41 @@ public class Strassen
     }
 
     public class Node extends Thread {
-        Node left, right;
+        Node left, right, parent;
         int[][] data;
+        int weight;
 
-        public Node(int[][] data) {
-
+        public Node(Node parent) {
+            this.parent = parent;
+            this.left = null;
+            this.right = null;
+            data = null;
+            weight = 0;
         }
         public void run() {}
     }
 
-    /*public void createBiTree(int n) {
-        Node A = new Node();
+    public Node createBiTree(int n) {
+        Node base = new Node(null);
+        for (int i = 0; i < n; i++) {
+            insertNode(base);
+        }
+        return base;
     }
-     */
+
+    public void insertNode(Node start) {
+        if (start.left == null) {
+            start.left = new Node(start);
+            start.weight++;
+        } else if (start.right == null) {
+            start.right = new Node(start);
+            start.weight++;
+        } else if (start.left.weight >= start.right.weight) {
+            insertNode(start.left);
+        } else {
+            insertNode(start.right);
+        }
+    }
 
     /** Main function **/
     public static void main (String[] args)
