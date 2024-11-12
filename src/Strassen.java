@@ -1,12 +1,47 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 
 public class Strassen
 {
+    public static class Node extends Thread {
+        Node left, right, parent;
+        int[][] data;
+        int weight;
+
+        public Node(Node parent) {
+            this.parent = parent;
+            this.left = null;
+            this.right = null;
+            data = null;
+            weight = 0;
+        }
+        public void run() {}
+    }
+
+    public static Node createBiTree(int n) {
+        n += 1;
+        n *= 2;
+        Node base = new Node(null);
+        for (int i = 0; i < n; i++) {
+            insertNode(base);
+        }
+        return base;
+    }
+
+    public static void insertNode(Node start) {
+        if (start.left == null) {
+            start.left = new Node(start);
+            start.weight++;
+        } else if (start.right == null) {
+            start.right = new Node(start);
+            start.weight++;
+        } else if (start.left.weight >= start.right.weight) {
+            insertNode(start.left);
+        } else {
+            insertNode(start.right);
+        }
+    }
+    
     /** Function to multiply two matrices
      * @param A first matrix to be multiplied
      * @param B second matrix to be multiplied
@@ -16,7 +51,7 @@ public class Strassen
     {
         int n = A.length;
         int[][] R = new int[n][n];
-        /** base case **/
+        //base case
         if (n == 1)
             R[0][0] = A[0][0] * B[0][0];
         else
@@ -30,18 +65,18 @@ public class Strassen
             int[][] B21 = new int[n/2][n/2];
             int[][] B22 = new int[n/2][n/2];
 
-            /** Dividing matrix A into 4 halves **/
+            //Dividing matrix A into 4 halves
             split(A, A11, 0 , 0);
             split(A, A12, 0 , n/2);
             split(A, A21, n/2, 0);
             split(A, A22, n/2, n/2);
-            /** Dividing matrix B into 4 halves **/
+            //Dividing matrix B into 4 halves
             split(B, B11, 0 , 0);
             split(B, B12, 0 , n/2);
             split(B, B21, n/2, 0);
             split(B, B22, n/2, n/2);
 
-            /**
+            /*
              M1 = (A11 + A22)(B11 + B22)
              M2 = (A21 + A22) B11
              M3 = A11 (B12 - B22)
@@ -49,7 +84,7 @@ public class Strassen
              M5 = (A11 + A12) B22
              M6 = (A21 - A11) (B11 + B12)
              M7 = (A12 - A22) (B21 + B22)
-             **/
+             */
 
             int [][] M1 = multiply(add(A11, A22), add(B11, B22));
             int [][] M2 = multiply(add(A21, A22), B11);
@@ -59,24 +94,24 @@ public class Strassen
             int [][] M6 = multiply(sub(A21, A11), add(B11, B12));
             int [][] M7 = multiply(sub(A12, A22), add(B21, B22));
 
-            /**
+            /*
              C11 = M1 + M4 - M5 + M7
              C12 = M3 + M5
              C21 = M2 + M4
              C22 = M1 - M2 + M3 + M6
-             **/
+             */
             int [][] C11 = add(sub(add(M1, M4), M5), M7);
             int [][] C12 = add(M3, M5);
             int [][] C21 = add(M2, M4);
             int [][] C22 = add(sub(add(M1, M3), M2), M6);
 
-            /** join 4 halves into one result matrix **/
+            //Join 4 halves into one result matrix
             join(C11, R, 0 , 0);
             join(C12, R, 0 , n/2);
             join(C21, R, n/2, 0);
             join(C22, R, n/2, n/2);
         }
-        /** return result **/
+        //Return result
         return R;
     }
     /** Function to subtract two matrices
@@ -192,49 +227,12 @@ public class Strassen
         }
     }
 
-    public class Node extends Thread {
-        Node left, right, parent;
-        int[][] data;
-        int weight;
-
-        public Node(Node parent) {
-            this.parent = parent;
-            this.left = null;
-            this.right = null;
-            data = null;
-            weight = 0;
-        }
-        public void run() {}
-    }
-
-    public Node createBiTree(int n) {
-        Node base = new Node(null);
-        for (int i = 0; i < n; i++) {
-            insertNode(base);
-        }
-        return base;
-    }
-
-    public void insertNode(Node start) {
-        if (start.left == null) {
-            start.left = new Node(start);
-            start.weight++;
-        } else if (start.right == null) {
-            start.right = new Node(start);
-            start.weight++;
-        } else if (start.left.weight >= start.right.weight) {
-            insertNode(start.left);
-        } else {
-            insertNode(start.right);
-        }
-    }
-
     /** Main function **/
     public static void main (String[] args)
     {
         Scanner scan = new Scanner(System.in);
         System.out.println("Strassen Multiplication Algorithm Test\n");
-        /** Make an object of Strassen class **/
+        // Make an object of Strassen class
         Strassen s = new Strassen();
 
         //initializing N for later
@@ -243,6 +241,7 @@ public class Strassen
         String test;
         long t0, t1 = 0, t;
         boolean cont = true;
+        Node root = null;
 
         while (cont) {
             System.out.print("Which matrices would you like to calculate?\n" +
@@ -302,7 +301,13 @@ public class Strassen
             }
         }
 
-
+        switch (choice) {
+            case 0 -> {root = createBiTree(1);}
+            case 1 -> {root = createBiTree(3);}
+            case 2 -> {root = createBiTree(7);}
+            case 3 -> {root = createBiTree(15);}
+            case 4 -> {root = createBiTree(31);}
+        }
 
         //checking array sizes
         int Ar = A.length;
