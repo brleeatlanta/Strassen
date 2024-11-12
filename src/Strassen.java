@@ -7,6 +7,11 @@ import java.util.Scanner;
 
 public class Strassen
 {
+    /** Function to multiply two matrices
+     * @param A first matrix to be multiplied
+     * @param B second matrix to be multiplied
+     * @return result of the multiplied matrices
+     */
     public int[][] multiply(int[][] A, int[][] B)
     {
         int n = A.length;
@@ -74,7 +79,11 @@ public class Strassen
         /** return result **/
         return R;
     }
-    /** Function to sub two matrices **/
+    /** Function to subtract two matrices
+     * @param A first matrix to be multiplied
+     * @param B second matrix to be multiplied
+     * @return result of the multiplied matrices
+     */
     public int[][] sub(int[][] A, int[][] B)
     {
         int n = A.length;
@@ -84,7 +93,11 @@ public class Strassen
                 C[i][j] = A[i][j] - B[i][j];
         return C;
     }
-    /** Function to add two matrices **/
+    /** Function to add two matrices
+     * @param A matrix to be subtracted from
+     * @param B matrix to subtract with
+     * @return result of the subtracted matrices
+     */
     public int[][] add(int[][] A, int[][] B)
     {
         int n = A.length;
@@ -94,14 +107,24 @@ public class Strassen
                 C[i][j] = A[i][j] + B[i][j];
         return C;
     }
-    /** Function to split parent matrix into child matrices **/
+    /** Function to split parent matrix into child matrices
+     * @param P parent matrix
+     * @param C child matrix
+     * @param iB which column to start at in the parent matrix
+     * @param jB which row to start at in the parent matrix
+     */
     public void split(int[][] P, int[][] C, int iB, int jB)
     {
         for(int i1 = 0, i2 = iB; i1 < C.length; i1++, i2++)
             for(int j1 = 0, j2 = jB; j1 < C.length; j1++, j2++)
                 C[i1][j1] = P[i2][j2];
     }
-    /** Function to join child matrices into parent matrix **/
+    /** Function to join child matrices into parent matrix
+     * @param C child matrix
+     * @param P parent matrix
+     * @param iB which column to start at in the parent matrix
+     * @param jB which row to start at in the parent matrix
+     */
     public void join(int[][] C, int[][] P, int iB, int jB)
     {
         for(int i1 = 0, i2 = iB; i1 < C.length; i1++, i2++)
@@ -109,6 +132,10 @@ public class Strassen
                 P[i2][j2] = C[i1][j1];
     }
 
+    /** Function to read matrices from file
+     * @param fileName name of the file to be read from
+     * @return a matrix
+     */
     public static String readMatricesFromFile(String fileName) {
         try {
             String result = "";
@@ -126,6 +153,12 @@ public class Strassen
         return "";
     }
 
+    /** Function to split a string matrix into a 2D array
+     * @param combined the string matrix
+     * @param size the size of the matrix
+     * @param firstHalf whether the resulting matrix is the first or second half
+     * @return a matrix in a 2D array
+     */
     public static int[][] splitMatrices(String combined, int size, boolean firstHalf) {
         int[][] matrix = new int[size][size];
         String line;
@@ -142,6 +175,9 @@ public class Strassen
         return matrix;
     }
 
+    /** Function to write a matrix into a file (result.txt)
+     * @param result the matrix to be written
+     */
     public static void writeResultToFile(int[][] result) {
         try {
             FileWriter myWriter = new FileWriter("result.txt");
@@ -156,9 +192,37 @@ public class Strassen
         }
     }
 
-    public static int menu() {
+    public class Node extends Thread {
+        Node left, right;
+        int[][] data;
+
+        public Node(int[][] data) {
+
+        }
+        public void run() {}
+    }
+
+    /*public void createBiTree(int n) {
+        Node A = new Node();
+    }
+     */
+
+    /** Main function **/
+    public static void main (String[] args)
+    {
         Scanner scan = new Scanner(System.in);
-        while (true) {
+        System.out.println("Strassen Multiplication Algorithm Test\n");
+        /** Make an object of Strassen class **/
+        Strassen s = new Strassen();
+
+        //initializing N for later
+        int N = 0, choice = 0;
+        int[][] A = null, B = null, result = null;
+        String test;
+        long t0, t1 = 0, t;
+        boolean cont = true;
+
+        while (cont) {
             System.out.print("Which matrices would you like to calculate?\n" +
                     "0) test\n" +
                     "1) 1k x 1k\n" +
@@ -167,28 +231,15 @@ public class Strassen
                     "4) 8k x 8k\n" +
                     "5) 16k x 16k\n" +
                     "Choice: ");
-            int choice = scan.nextInt();
+            choice = scan.nextInt();
             if (choice >= 0 && choice <= 5) {
-                return choice;
+                cont = false;
             } else {
                 System.out.println("Invalid input. Please try again.");
             }
         }
-    }
 
-    /** Main function **/
-    public static void main (String[] args)
-    {
-        System.out.println("Strassen Multiplication Algorithm Test\n");
-        /** Make an object of Strassen class **/
-        Strassen s = new Strassen();
-
-        //initializing N for later
-        int N = 0;
-        int[][] A = null, B = null, result = null;
-        String test;
-
-        switch (menu()) {
+        switch (choice) {
             case 0: test = readMatricesFromFile("testmatrix.txt");
                 A = splitMatrices(test,8,true);
                 B = splitMatrices(test,8,false);
@@ -209,7 +260,27 @@ public class Strassen
             case 5: //will be 16k x 16k
                 //to be added
                 break;
+        } //2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768
+        //  1 2 3  4  5  6   7   8   9   10   11   12   13    14    15
+
+        cont = true;
+        while (cont) {
+            System.out.print("How many cores/threads should be used?\n" +
+                    "0) 1 core/threads\n" +
+                    "1) 3 cores/threads\n" +
+                    "2) 7 cores/threads\n" +
+                    "3) 15 cores/threads\n" +
+                    "4) 31 cores/threads\n" +
+                    "Choice: ");
+            choice = scan.nextInt();
+            if (choice >= 0 && choice <= 4) {
+                cont = false;
+            } else {
+                System.out.println("Invalid input. Please try again.");
+            }
         }
+
+
 
         //checking array sizes
         int Ar = A.length;
@@ -238,8 +309,10 @@ public class Strassen
             System.out.println();
         }
 
+        t0 = System.currentTimeMillis();
         int[][] C = s.multiply(A, B);
         result = C;
+        t1 = System.currentTimeMillis();
 
         System.out.println("\nProduct of matrices A and  B : ");
         for (int i = 0; i < N; i++)
@@ -248,11 +321,6 @@ public class Strassen
                 System.out.print(C[i][j] +" ");
             System.out.println();
         }
-
-        writeResultToFile(result);
-
-    }
-}
 
         writeResultToFile(result);
 
